@@ -257,6 +257,16 @@
   </div>
 </div>
 
+async function init() {
+    allVehicles = await fetchVehicles();
+    const ids = allVehicles.map(v => v.id);
+    allImages = await fetchImages(ids);
+    populateYearFilter(allVehicles);
+    renderCards(allVehicles);
+  }
+
+init();  
+  
 <script>
   const SUPABASE_URL = 'https://dreclszbtnmwfaigifpg.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZWNsc3pidG5td2ZhaWdpZnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMjExMjMsImV4cCI6MjA5ODY5NzEyM30.IGNa8gHPb7RmYMy7h3gVa9TCgTxD2Mhon4WpA81TybE';
