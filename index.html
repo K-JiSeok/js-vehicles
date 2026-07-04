@@ -1,1 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>제이에스매매상사 - 중고화물차 전문</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f5f5f5; color: #333; }
 
+    /* 헤더 */
+    header {
+      background: #1a3a5c;
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    header h1 { font-size: 20px; font-weight: 700; }
+    header p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+    .header-phone { font-size: 14px; font-weight: 700; color: #ffd700; }
+
+    /* 필터 */
+    .filter-bar {
+      background: white;
+      padding: 16px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .filter-bar select, .filter-bar input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+    }
+    .filter-bar button {
+      padding: 8px 20px;
+      background: #1a3a5c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .filter-bar button:hover { background: #2a5a8c; }
+
+    /* 매물 카운트 */
+    .count-bar {
+      padding: 12px 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* 매물 그리드 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      padding: 0 20px 20px;
+    }
+
+    /* 매물 카드 */
+    .card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+    .card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 14px;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-body { padding: 16px; }
+    .card-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .card-price { font-size: 20px; font-weight: 700; color: #e63946; margin-bottom: 10px; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag {
+      background: #f0f4f8;
+      color: #1a3a5c;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .card-desc { font-size: 13px; color: #777; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-contact {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      background: #1a3a5c;
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .card-contact:hover { background: #2a5a8c; }
+
+    /* 판매완료 */
+    .sold .card-img { position: relative; }
+    .sold-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* 모달 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      overflow-y: auto;
+    }
+    .modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 640px;
+      overflow: hidden;
+      margin: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-img-wrap { position: relative; }
+    .modal-imgs { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .modal-imgs img { width: 100%; min-width: 100%; height: 300px; object-fit: cover; scroll-snap-align: start; }
+    .modal-body { padding: 20px; }
+    .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .modal-price { font-size: 26px; font-weight: 700; color: #e63946; margin-bottom: 16px; }
+    .modal-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .info-item label { font-size: 12px; color: #999; display: block; }
+    .info-item span { font-size: 15px; font-weight: 600; }
+    .modal-desc { background: #f8f8f8; border-radius: 8px; padding: 12px; font-size: 14px; color: #555; margin-bottom: 16px; line-height: 1.6; }
+    .modal-contact {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      background: #1a3a5c;
+      color: white;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* 로딩 */
+    .loading { text-align: center; padding: 60px; color: #999; font-size: 16px; }
+
+    /* 반응형 */
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; padding: 0 12px 12px; }
+      .filter-bar { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🚛 제이에스매매상사</h1>
+    <p>중고화물차 전문</p>
+  </div>
+  <a class="header-phone" href="tel:010-5500-4614">📞 010-5500-4614</a>
+</header>
+
+<div class="filter-bar">
+  <select id="filterTonnage">
+    <option value="">전체 톤수</option>
+    <option value="1">1톤</option>
+    <option value="2.5">2.5톤</option>
+    <option value="3.5">3.5톤</option>
+    <option value="5">5톤</option>
+    <option value="8">8톤</option>
+    <option value="11">11톤</option>
+    <option value="15">15톤</option>
+    <option value="25">25톤</option>
+  </select>
+  <select id="filterYear">
+    <option value="">전체 연식</option>
+  </select>
+  <input type="number" id="filterMinPrice" placeholder="최소가격(만원)">
+  <input type="number" id="filterMaxPrice" placeholder="최대가격(만원)">
+  <select id="filterStatus">
+    <option value="">전체</option>
+    <option value="판매중">판매중</option>
+    <option value="판매완료">판매완료</option>
+  </select>
+  <button onclick="applyFilter()">검색</button>
+  <button onclick="resetFilter()" style="background:#888;">초기화</button>
+</div>
+
+<div class="count-bar" id="countBar">매물을 불러오는 중...</div>
+
+<div class="grid" id="grid">
+  <div class="loading">매물을 불러오는 중...</div>
+</div>
+
+<!-- 모달 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-img-wrap">
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+      <div class="modal-imgs" id="modalImgs"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <div class="modal-info" id="modalInfo"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <a class="modal-contact" id="modalContact" href="#">📞 전화 문의하기</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://dreclszbtnmwfaigifpg.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qF2Qo-kaVC4zOG0W8n0SSw_OVKWIaDU';
+
+  let allVehicles = [];
+  let allImages = {};
+
+  async function fetchVehicles() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicles?select=*&order=created_at.desc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    return await res.json();
+  }
+
+  async function fetchImages(vehicleIds) {
+    if (vehicleIds.length === 0) return {};
+    const ids = vehicleIds.join(',');
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicle_images?vehicle_id=in.(${ids})&order=order_index.asc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    const imgs = await res.json();
+    const map = {};
+    imgs.forEach(img => {
+      if (!map[img.vehicle_id]) map[img.vehicle_id] = [];
+      map[img.vehicle_id].push(img.image_url);
+    });
+    return map;
+  }
+
+  function formatPrice(price) {
+    if (!price) return '가격문의';
+    if (price >= 10000) {
+      const uk = Math.floor(price / 10000);
+      const man = price % 10000;
