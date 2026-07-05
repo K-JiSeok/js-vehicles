@@ -7,8 +7,6 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Noto Sans KR', sans-serif; background: #f5f5f5; color: #333; }
-
-    /* 헤더 */
     header {
       background: #1a3a5c;
       color: white;
@@ -24,8 +22,6 @@
     header h1 { font-size: 20px; font-weight: 700; }
     header p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
     .header-phone { font-size: 14px; font-weight: 700; color: #ffd700; }
-
-    /* 필터 */
     .filter-bar {
       background: white;
       padding: 16px 20px;
@@ -52,23 +48,13 @@
       font-weight: 600;
     }
     .filter-bar button:hover { background: #2a5a8c; }
-
-    /* 매물 카운트 */
-    .count-bar {
-      padding: 12px 20px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    /* 매물 그리드 */
+    .count-bar { padding: 12px 20px; font-size: 14px; color: #666; }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 16px;
       padding: 0 20px 20px;
     }
-
-    /* 매물 카드 */
     .card {
       background: white;
       border-radius: 12px;
@@ -78,7 +64,6 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-
     .card-img {
       width: 100%;
       height: 200px;
@@ -91,7 +76,6 @@
       font-size: 14px;
     }
     .card-img img { width: 100%; height: 100%; object-fit: cover; }
-
     .card-body { padding: 16px; }
     .card-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .card-price { font-size: 20px; font-weight: 700; color: #e63946; margin-bottom: 10px; }
@@ -117,9 +101,6 @@
       text-decoration: none;
     }
     .card-contact:hover { background: #2a5a8c; }
-
-    /* 판매완료 */
-    .sold .card-img { position: relative; }
     .sold-badge {
       position: absolute;
       top: 10px;
@@ -131,8 +112,6 @@
       font-size: 12px;
       font-weight: 700;
     }
-
-    /* 모달 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -187,11 +166,7 @@
       font-weight: 700;
       text-decoration: none;
     }
-
-    /* 로딩 */
     .loading { text-align: center; padding: 60px; color: #999; font-size: 16px; }
-
-    /* 반응형 */
     @media (max-width: 600px) {
       .grid { grid-template-columns: 1fr; padding: 0 12px 12px; }
       .filter-bar { padding: 12px; }
@@ -240,7 +215,6 @@
   <div class="loading">매물을 불러오는 중...</div>
 </div>
 
-<!-- 모달 -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <div class="modal-img-wrap">
@@ -257,19 +231,9 @@
   </div>
 </div>
 
-async function init() {
-    allVehicles = await fetchVehicles();
-    const ids = allVehicles.map(v => v.id);
-    allImages = await fetchImages(ids);
-    populateYearFilter(allVehicles);
-    renderCards(allVehicles);
-  }
-
-init();  
-  
 <script>
   const SUPABASE_URL = 'https://dreclszbtnmwfaigifpg.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZWNsc3pidG5td2ZhaWdpZnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMjExMjMsImV4cCI6MjA5ODY5NzEyM30.IGNa8gHPb7RmYMy7h3gVa9TCgTxD2Mhon4WpA81TybE';
+  const SUPABASE_KEY = '여기에_anon_키_붙여넣기';
 
   let allVehicles = [];
   let allImages = {};
@@ -301,3 +265,133 @@ init();
     if (price >= 10000) {
       const uk = Math.floor(price / 10000);
       const man = price % 10000;
+      return man > 0 ? `${uk}억 ${man.toLocaleString()}만원` : `${uk}억원`;
+    }
+    return `${price.toLocaleString()}만원`;
+  }
+
+  function formatMileage(m) {
+    if (!m) return '-';
+    return m.toLocaleString() + 'km';
+  }
+
+  function renderCards(vehicles) {
+    const grid = document.getElementById('grid');
+    document.getElementById('countBar').textContent = `총 ${vehicles.length}개 매물`;
+    if (vehicles.length === 0) {
+      grid.innerHTML = '<div class="loading">조건에 맞는 매물이 없습니다.</div>';
+      return;
+    }
+    grid.innerHTML = vehicles.map(v => {
+      const imgs = allImages[v.id] || [];
+      const imgHtml = imgs.length > 0
+        ? `<img src="${imgs[0]}" alt="${v.model_name}" loading="lazy">`
+        : `<div style="height:200px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;">사진 없음</div>`;
+      const sold = v.status === '판매완료';
+      return `
+        <div class="card ${sold ? 'sold' : ''}" onclick="openModal(${v.id})">
+          <div class="card-img" style="position:relative;">
+            ${imgHtml}
+            ${sold ? '<div class="sold-badge">판매완료</div>' : ''}
+          </div>
+          <div class="card-body">
+            <div class="card-title">${v.model_name || '-'}</div>
+            <div class="card-price">${formatPrice(v.price)}</div>
+            <div class="card-tags">
+              ${v.tonnage ? `<span class="tag">${v.tonnage}톤</span>` : ''}
+              ${v.year ? `<span class="tag">${v.year}</span>` : ''}
+              ${v.transmission ? `<span class="tag">${v.transmission}</span>` : ''}
+              ${v.axle ? `<span class="tag">${v.axle}</span>` : ''}
+              ${v.mileage ? `<span class="tag">${formatMileage(v.mileage)}</span>` : ''}
+            </div>
+            <div class="card-desc">${v.description || ''}</div>
+            <a class="card-contact" href="tel:${v.contact}" onclick="event.stopPropagation()">📞 ${v.contact || '문의'}</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openModal(id) {
+    const v = allVehicles.find(x => x.id === id);
+    if (!v) return;
+    const imgs = allImages[id] || [];
+    document.getElementById('modalImgs').innerHTML = imgs.length > 0
+      ? imgs.map(url => `<img src="${url}" alt="${v.model_name}">`).join('')
+      : `<div style="height:250px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;">사진 없음</div>`;
+    document.getElementById('modalTitle').textContent = v.model_name || '-';
+    document.getElementById('modalPrice').textContent = formatPrice(v.price);
+    document.getElementById('modalInfo').innerHTML = `
+      <div class="info-item"><label>차량번호</label><span>${v.plate_number || '-'}</span></div>
+      <div class="info-item"><label>연식</label><span>${v.year || '-'}</span></div>
+      <div class="info-item"><label>톤수</label><span>${v.tonnage ? v.tonnage + '톤' : '-'}</span></div>
+      <div class="info-item"><label>주행거리</label><span>${formatMileage(v.mileage)}</span></div>
+      <div class="info-item"><label>마력수</label><span>${v.horsepower ? v.horsepower + 'hp' : '-'}</span></div>
+      <div class="info-item"><label>미션</label><span>${v.transmission || '-'}</span></div>
+      <div class="info-item"><label>축위치</label><span>${v.axle || '-'}</span></div>
+      <div class="info-item"><label>상태</label><span>${v.status || '-'}</span></div>
+    `;
+    document.getElementById('modalDesc').textContent = v.description || '특이사항 없음';
+    document.getElementById('modalContact').href = `tel:${v.contact}`;
+    document.getElementById('modalContact').textContent = `📞 ${v.contact} 전화 문의`;
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModalBtn();
+  }
+
+  function closeModalBtn() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+
+  function populateYearFilter(vehicles) {
+    const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort().reverse();
+    const sel = document.getElementById('filterYear');
+    years.forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      sel.appendChild(opt);
+    });
+  }
+
+  function applyFilter() {
+    const tonnage = document.getElementById('filterTonnage').value;
+    const year = document.getElementById('filterYear').value;
+    const minPrice = Number(document.getElementById('filterMinPrice').value);
+    const maxPrice = Number(document.getElementById('filterMaxPrice').value);
+    const status = document.getElementById('filterStatus').value;
+
+    let filtered = allVehicles.filter(v => {
+      if (tonnage && Number(v.tonnage) !== Number(tonnage)) return false;
+      if (year && v.year !== year) return false;
+      if (minPrice && v.price < minPrice) return false;
+      if (maxPrice && v.price > maxPrice) return false;
+      if (status && v.status !== status) return false;
+      return true;
+    });
+    renderCards(filtered);
+  }
+
+  function resetFilter() {
+    document.getElementById('filterTonnage').value = '';
+    document.getElementById('filterYear').value = '';
+    document.getElementById('filterMinPrice').value = '';
+    document.getElementById('filterMaxPrice').value = '';
+    document.getElementById('filterStatus').value = '';
+    renderCards(allVehicles);
+  }
+
+  async function init() {
+    allVehicles = await fetchVehicles();
+    const ids = allVehicles.map(v => v.id);
+    allImages = await fetchImages(ids);
+    populateYearFilter(allVehicles);
+    renderCards(allVehicles);
+  }
+
+  init();
+</script>
+</body>
+</html>
