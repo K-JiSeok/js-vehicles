@@ -117,6 +117,8 @@
       font-size: 12px;
       font-weight: 700;
     }
+
+    /* 모달 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -125,41 +127,137 @@
       z-index: 200;
       overflow-y: auto;
     }
-    .modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; align-items: center; justify-content: center; padding: 20px; }
     .modal {
       background: white;
       border-radius: 16px;
       width: 100%;
-      max-width: 640px;
+      max-width: 900px;
       overflow: hidden;
-      margin: auto;
+      display: flex;
+      flex-direction: row;
     }
+
+    /* 모달 사진 영역 */
+    .modal-img-wrap {
+      position: relative;
+      width: 55%;
+      min-width: 55%;
+      background: #000;
+      user-select: none;
+    }
+    .modal-img-slider {
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+    }
+    .modal-img-slider img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.3s;
+      opacity: 0;
+    }
+    .modal-img-slider img.active { opacity: 1; }
+
+    /* 화살표 버튼 */
+    .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .arrow-btn:hover { background: rgba(0,0,0,0.8); }
+    .arrow-left { left: 10px; }
+    .arrow-right { right: 10px; }
+
+    /* 사진 인디케이터 */
+    .img-indicator {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dot.active { background: white; }
+
+    /* 사진 카운터 */
+    .img-counter {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      z-index: 10;
+    }
+
+    /* 닫기 버튼 */
     .modal-close {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 10px;
+      left: 10px;
       background: rgba(0,0,0,0.5);
       color: white;
       border: none;
       border-radius: 50%;
       width: 36px;
       height: 36px;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
     }
-    .modal-img-wrap { position: relative; }
-    .modal-imgs { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
-    .modal-imgs img { width: 100%; min-width: 100%; height: 300px; object-fit: cover; scroll-snap-align: start; }
-    .modal-body { padding: 20px; }
-    .modal-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+
+    /* 모달 정보 영역 */
+    .modal-body {
+      padding: 24px;
+      width: 45%;
+      overflow-y: auto;
+      max-height: 480px;
+    }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
     .modal-price { font-size: 26px; font-weight: 700; color: #e63946; margin-bottom: 16px; }
-    .modal-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .info-item label { font-size: 12px; color: #999; display: block; }
-    .info-item span { font-size: 15px; font-weight: 600; }
-    .modal-desc { background: #f8f8f8; border-radius: 8px; padding: 12px; font-size: 14px; color: #555; margin-bottom: 16px; line-height: 1.6; }
+    .modal-info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .info-item label { font-size: 13px; color: #999; display: block; margin-bottom: 2px; }
+    .info-item span { font-size: 16px; font-weight: 600; }
+    .modal-desc {
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
     .modal-contact {
       display: block;
       text-align: center;
@@ -171,8 +269,16 @@
       font-weight: 700;
       text-decoration: none;
     }
+    .modal-contact:hover { background: #2a5a8c; }
+
     .loading { text-align: center; padding: 60px; color: #999; font-size: 16px; }
-    @media (max-width: 600px) {
+
+    /* 모바일 반응형 */
+    @media (max-width: 700px) {
+      .modal { flex-direction: column; }
+      .modal-img-wrap { width: 100%; min-width: 100%; }
+      .modal-img-slider { height: 260px; }
+      .modal-body { width: 100%; max-height: none; }
       .grid { grid-template-columns: 1fr; padding: 0 12px 12px; }
       .filter-bar { padding: 12px; }
     }
@@ -220,12 +326,25 @@
   <div class="loading">매물을 불러오는 중...</div>
 </div>
 
+<!-- 모달 -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
+
+    <!-- 왼쪽: 사진 슬라이더 -->
     <div class="modal-img-wrap">
       <button class="modal-close" onclick="closeModalBtn()">✕</button>
-      <div class="modal-imgs" id="modalImgs"></div>
+      <div class="modal-img-slider" id="modalSlider"
+        onmousedown="dragStart(event)"
+        ontouchstart="touchStart(event)"
+        ontouchend="touchEnd(event)">
+      </div>
+      <button class="arrow-btn arrow-left" onclick="prevImg()">&#8249;</button>
+      <button class="arrow-btn arrow-right" onclick="nextImg()">&#8250;</button>
+      <div class="img-counter" id="imgCounter"></div>
+      <div class="img-indicator" id="imgIndicator"></div>
     </div>
+
+    <!-- 오른쪽: 차량 정보 -->
     <div class="modal-body">
       <div class="modal-title" id="modalTitle"></div>
       <div class="modal-price" id="modalPrice"></div>
@@ -233,6 +352,7 @@
       <div class="modal-desc" id="modalDesc"></div>
       <a class="modal-contact" id="modalContact" href="#">📞 전화 문의하기</a>
     </div>
+
   </div>
 </div>
 
@@ -242,6 +362,9 @@
 
   let allVehicles = [];
   let allImages = {};
+  let currentImgIndex = 0;
+  let currentImgs = [];
+  let dragStartX = 0;
 
   async function fetchVehicles() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicles?select=*&order=created_at.desc`, {
@@ -291,7 +414,7 @@
       const imgs = allImages[v.id] || [];
       const imgHtml = imgs.length > 0
         ? `<img src="${imgs[0]}" alt="${v.model_name}" loading="lazy">`
-        : `<div style="height:200px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;">사진 없음</div>`;
+        : `<div style="aspect-ratio:4/3;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;">사진 없음</div>`;
       const sold = v.status === '판매완료';
       return `
         <div class="card ${sold ? 'sold' : ''}" onclick="openModal(${v.id})">
@@ -317,13 +440,79 @@
     }).join('');
   }
 
+  // 슬라이더 관련
+  function showImg(index) {
+    currentImgIndex = index;
+    const imgs = document.querySelectorAll('#modalSlider img');
+    const dots = document.querySelectorAll('.dot');
+    imgs.forEach((img, i) => img.classList.toggle('active', i === index));
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+    document.getElementById('imgCounter').textContent = currentImgs.length > 0 ? `${index + 1} / ${currentImgs.length}` : '';
+  }
+
+  function prevImg() {
+    if (currentImgs.length === 0) return;
+    showImg((currentImgIndex - 1 + currentImgs.length) % currentImgs.length);
+  }
+
+  function nextImg() {
+    if (currentImgs.length === 0) return;
+    showImg((currentImgIndex + 1) % currentImgs.length);
+  }
+
+  // 마우스 드래그
+  function dragStart(e) {
+    dragStartX = e.clientX;
+    document.onmouseup = dragEnd;
+  }
+
+  function dragEnd(e) {
+    const diff = dragStartX - e.clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? nextImg() : prevImg();
+    }
+    document.onmouseup = null;
+  }
+
+  // 터치 스와이프
+  function touchStart(e) {
+    dragStartX = e.touches[0].clientX;
+  }
+
+  function touchEnd(e) {
+    const diff = dragStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? nextImg() : prevImg();
+    }
+  }
+
   function openModal(id) {
     const v = allVehicles.find(x => x.id === id);
     if (!v) return;
-    const imgs = allImages[id] || [];
-    document.getElementById('modalImgs').innerHTML = imgs.length > 0
-      ? imgs.map(url => `<img src="${url}" alt="${v.model_name}">`).join('')
-      : `<div style="height:250px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;">사진 없음</div>`;
+    currentImgs = allImages[id] || [];
+    currentImgIndex = 0;
+
+    // 슬라이더 이미지 렌더링
+    const slider = document.getElementById('modalSlider');
+    if (currentImgs.length > 0) {
+      slider.innerHTML = currentImgs.map((url, i) => `
+        <img src="${url}" alt="${v.model_name}" class="${i === 0 ? 'active' : ''}">
+      `).join('');
+    } else {
+      slider.innerHTML = `<div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;position:absolute;">사진 없음</div>`;
+    }
+
+    // 인디케이터 렌더링
+    document.getElementById('imgIndicator').innerHTML = currentImgs.length > 1
+      ? currentImgs.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}" onclick="showImg(${i})"></div>`).join('')
+      : '';
+
+    document.getElementById('imgCounter').textContent = currentImgs.length > 0 ? `1 / ${currentImgs.length}` : '';
+
+    // 화살표 버튼 표시 여부
+    document.querySelector('.arrow-left').style.display = currentImgs.length > 1 ? 'flex' : 'none';
+    document.querySelector('.arrow-right').style.display = currentImgs.length > 1 ? 'flex' : 'none';
+
     document.getElementById('modalTitle').textContent = v.model_name || '-';
     document.getElementById('modalPrice').textContent = formatPrice(v.price);
     document.getElementById('modalInfo').innerHTML = `
@@ -397,6 +586,7 @@
   }
 
   init();
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
   }
