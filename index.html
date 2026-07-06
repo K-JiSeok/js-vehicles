@@ -579,7 +579,14 @@
   }
 
   async function init() {
-    allVehicles = await fetchVehicles();
+    const vehicles = await fetchVehicles();
+
+    // 판매중 먼저, 판매완료 뒤로 정렬
+    allVehicles = [
+      ...vehicles.filter(v => v.status !== '판매완료'),
+      ...vehicles.filter(v => v.status === '판매완료'),
+    ];
+
     const ids = allVehicles.map(v => v.id);
     allImages = await fetchImages(ids);
     populateYearFilter(allVehicles);
