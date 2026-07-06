@@ -77,16 +77,6 @@
       align-items: center;
       justify-content: center;
     }
-    .preview-item .uploading {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 12px;
-    }
     .btn {
       padding: 12px 24px;
       border: none;
@@ -95,10 +85,13 @@
       font-weight: 600;
       cursor: pointer;
       width: 100%;
+      margin-bottom: 8px;
     }
     .btn-primary { background: #1a3a5c; color: white; }
     .btn-primary:hover { background: #2a5a8c; }
     .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-success:hover { background: #218838; }
     .msg {
       padding: 12px;
       border-radius: 8px;
@@ -108,22 +101,39 @@
     }
     .msg.success { background: #d4edda; color: #155724; display: block; }
     .msg.error { background: #f8d7da; color: #721c24; display: block; }
-    .existing-grid {
+
+    /* 드래그 가능한 사진 그리드 */
+    .sortable-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 12px;
+      margin-bottom: 16px;
     }
-    .existing-item {
+    .sortable-item {
       position: relative;
       border-radius: 8px;
       overflow: hidden;
+      cursor: grab;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    .existing-item img {
+    .sortable-item:active { cursor: grabbing; }
+    .sortable-item.dragging {
+      opacity: 0.5;
+      border-color: #1a3a5c;
+      transform: scale(0.95);
+    }
+    .sortable-item.drag-over {
+      border-color: #ffd700;
+      transform: scale(1.05);
+    }
+    .sortable-item img {
       width: 100%;
       height: 120px;
       object-fit: cover;
+      pointer-events: none;
     }
-    .existing-item .delete-btn {
+    .sortable-item .delete-btn {
       position: absolute;
       top: 4px;
       right: 4px;
@@ -138,6 +148,35 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
+    }
+    .order-badge {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .first-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: #ffd700;
+      color: #333;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .drag-hint {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 12px;
+      text-align: center;
     }
     .no-photo { color: #999; font-size: 14px; text-align: center; padding: 20px; }
   </style>
@@ -175,7 +214,12 @@
 
   <div class="card" id="existingCard" style="display:none;">
     <h2>🖼️ 등록된 사진</h2>
-    <div id="existingGrid"></div>
+    <div class="drag-hint">📌 사진을 드래그해서 순서를 변경할 수 있어요. 첫 번째 사진이 대표사진이에요.</div>
+    <div class="sortable-grid" id="sortableGrid"></div>
+    <button class="btn btn-success" id="saveOrderBtn" onclick="saveOrder()" style="display:none;">
+      ✅ 순서 저장하기
+    </button>
+    <div class="msg" id="orderMsg"></div>
   </div>
 
 </div>
@@ -186,6 +230,8 @@
 
   let selectedFiles = [];
   let currentVehicleId = null;
+  let currentImages = [];
+  let dragSrcIndex = null;
 
   // 매물 목록 불러오기
   async function loadVehicles() {
@@ -217,20 +263,99 @@
     const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicle_images?vehicle_id=eq.${vehicleId}&order=order_index.asc`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
     });
-    const imgs = await res.json();
-    const grid = document.getElementById('existingGrid');
+    currentImages = await res.json();
+    renderSortableGrid();
+  }
 
-    if (imgs.length === 0) {
+  // 드래그 가능한 사진 그리드 렌더링
+  function renderSortableGrid() {
+    const grid = document.getElementById('sortableGrid');
+    document.getElementById('saveOrderBtn').style.display = 'none';
+
+    if (currentImages.length === 0) {
       grid.innerHTML = '<div class="no-photo">등록된 사진이 없습니다.</div>';
       return;
     }
 
-    grid.innerHTML = imgs.map(img => `
-      <div class="existing-item" id="img-${img.id}">
+    grid.innerHTML = currentImages.map((img, i) => `
+      <div class="sortable-item"
+        draggable="true"
+        data-index="${i}"
+        ondragstart="dragStart(event, ${i})"
+        ondragover="dragOver(event)"
+        ondragenter="dragEnter(event)"
+        ondragleave="dragLeave(event)"
+        ondrop="dragDrop(event, ${i})"
+        ondragend="dragEnd(event)">
         <img src="${img.image_url}" alt="차량사진">
-        <button class="delete-btn" onclick="deletePhoto(${img.id}, '${img.image_url}')">✕</button>
+        <div class="order-badge">${i + 1}번째</div>
+        ${i === 0 ? '<div class="first-badge">대표사진</div>' : ''}
+        <button class="delete-btn" onclick="deletePhoto(event, ${img.id}, '${img.image_url}')">✕</button>
       </div>
     `).join('');
+  }
+
+  // 드래그 이벤트
+  function dragStart(event, index) {
+    dragSrcIndex = index;
+    event.target.classList.add('dragging');
+  }
+
+  function dragOver(event) {
+    event.preventDefault();
+  }
+
+  function dragEnter(event) {
+    event.currentTarget.classList.add('drag-over');
+  }
+
+  function dragLeave(event) {
+    event.currentTarget.classList.remove('drag-over');
+  }
+
+  function dragDrop(event, targetIndex) {
+    event.currentTarget.classList.remove('drag-over');
+    if (dragSrcIndex === targetIndex) return;
+
+    // 순서 변경
+    const moved = currentImages.splice(dragSrcIndex, 1)[0];
+    currentImages.splice(targetIndex, 0, moved);
+
+    renderSortableGrid();
+    document.getElementById('saveOrderBtn').style.display = 'block';
+  }
+
+  function dragEnd(event) {
+    event.target.classList.remove('dragging');
+    document.querySelectorAll('.sortable-item').forEach(el => el.classList.remove('drag-over'));
+  }
+
+  // 순서 저장
+  async function saveOrder() {
+    const btn = document.getElementById('saveOrderBtn');
+    btn.disabled = true;
+    btn.textContent = '저장 중...';
+
+    for (let i = 0; i < currentImages.length; i++) {
+      await fetch(`${SUPABASE_URL}/rest/v1/vehicle_images?id=eq.${currentImages[i].id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order_index: i }),
+      });
+    }
+
+    btn.disabled = false;
+    btn.textContent = '✅ 순서 저장하기';
+    btn.style.display = 'none';
+
+    const msg = document.getElementById('orderMsg');
+    msg.textContent = '순서가 저장됐어요!';
+    msg.className = 'msg success';
+    setTimeout(() => { msg.className = 'msg'; }, 3000);
   }
 
   // 사진 미리보기
@@ -271,13 +396,13 @@
     msg.className = 'msg';
 
     let successCount = 0;
+    const startIndex = currentImages.length;
 
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       const ext = file.name.split('.').pop();
       const fileName = `${currentVehicleId}/${Date.now()}_${i}.${ext}`;
 
-      // Storage에 업로드
       const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/vehicle-images/${fileName}`, {
         method: 'POST',
         headers: {
@@ -291,7 +416,6 @@
       if (uploadRes.ok) {
         const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/vehicle-images/${fileName}`;
 
-        // DB에 저장
         await fetch(`${SUPABASE_URL}/rest/v1/vehicle_images`, {
           method: 'POST',
           headers: {
@@ -303,7 +427,7 @@
           body: JSON.stringify({
             vehicle_id: Number(currentVehicleId),
             image_url: imageUrl,
-            order_index: i,
+            order_index: startIndex + i,
           }),
         });
         successCount++;
@@ -327,10 +451,10 @@
   }
 
   // 사진 삭제
-  async function deletePhoto(imgId, imageUrl) {
+  async function deletePhoto(event, imgId, imageUrl) {
+    event.stopPropagation();
     if (!confirm('이 사진을 삭제할까요?')) return;
 
-    // Storage에서 삭제
     const path = imageUrl.split('vehicle-images/')[1];
     await fetch(`${SUPABASE_URL}/storage/v1/object/vehicle-images/${path}`, {
       method: 'DELETE',
@@ -340,7 +464,6 @@
       },
     });
 
-    // DB에서 삭제
     await fetch(`${SUPABASE_URL}/rest/v1/vehicle_images?id=eq.${imgId}`, {
       method: 'DELETE',
       headers: {
@@ -349,7 +472,12 @@
       },
     });
 
-    document.getElementById(`img-${imgId}`).remove();
+    currentImages = currentImages.filter(img => img.id !== imgId);
+    renderSortableGrid();
+
+    if (currentImages.length > 0) {
+      document.getElementById('saveOrderBtn').style.display = 'block';
+    }
   }
 
   loadVehicles();
