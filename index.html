@@ -519,14 +519,23 @@
     document.getElementById('modalInfo').innerHTML = `
       <div class="info-item"><label>차량번호</label><span>${v.plate_number || '-'}</span></div>
       <div class="info-item"><label>연식</label><span>${v.year || '-'}</span></div>
-      <div class="info-item"><label>톤수</label><span>${v.tonnage ? v.tonnage + '톤' : '-'}</span></div>
+      ${v.tonnage ? `<div class="info-item"><label>톤수</label><span>${v.tonnage}톤</span></div>` : ''}
       <div class="info-item"><label>주행거리</label><span>${formatMileage(v.mileage)}</span></div>
-      <div class="info-item"><label>마력수</label><span>${v.horsepower ? v.horsepower + 'hp' : '-'}</span></div>
-      <div class="info-item"><label>미션</label><span>${v.transmission || '-'}</span></div>
-      <div class="info-item"><label>축위치</label><span>${v.axle || '-'}</span></div>
+      ${v.horsepower ? `<div class="info-item"><label>마력수</label><span>${v.horsepower}hp</span></div>` : ''}
+      ${v.transmission ? `<div class="info-item"><label>미션</label><span>${v.transmission}</span></div>` : ''}
+      ${v.axle ? `<div class="info-item"><label>축위치</label><span>${v.axle}</span></div>` : ''}
+      ${v.dimensions ? `<div class="info-item" style="grid-column:1/-1;"><label>제원</label><span>${v.dimensions}</span></div>` : ''}
       <div class="info-item"><label>상태</label><span>${v.status || '-'}</span></div>
     `;
-    document.getElementById('modalDesc').textContent = v.description || '특이사항 없음';
+    document.getElementById('modalDesc').textContent = v.description || '';
+    const descEl = document.getElementById('modalDesc');
+    if (v.description) {
+      descEl.textContent = v.description;
+      descEl.style.display = 'block';
+    } else {
+      descEl.textContent = '';
+      descEl.style.display = 'none';
+    }
     document.getElementById('modalContact').href = `tel:${v.contact}`;
     document.getElementById('modalContact').textContent = `📞 ${v.contact} 전화 문의`;
     document.getElementById('modalOverlay').classList.add('active');
