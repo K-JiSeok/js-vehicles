@@ -519,13 +519,12 @@
     document.getElementById('modalInfo').innerHTML = `
       <div class="info-item"><label>차량번호</label><span>${v.plate_number || '-'}</span></div>
       <div class="info-item"><label>연식</label><span>${v.year || '-'}</span></div>
-      ${v.tonnage ? `<div class="info-item"><label>톤수</label><span>${v.tonnage}톤</span></div>` : ''}
+      ${v.tonnage ? `<div class="info-item"><label>톤수</label><span>${v.tonnage}톤</span></div>` : '<div class="info-item"></div>'}
       <div class="info-item"><label>주행거리</label><span>${formatMileage(v.mileage)}</span></div>
-      ${v.horsepower ? `<div class="info-item"><label>마력수</label><span>${v.horsepower}hp</span></div>` : ''}
-      ${v.transmission ? `<div class="info-item"><label>미션</label><span>${v.transmission}</span></div>` : ''}
-      ${v.axle ? `<div class="info-item"><label>축위치</label><span>${v.axle}</span></div>` : ''}
-      ${v.dimensions ? `<div class="info-item" style="grid-column:1/-1;"><label>제원</label><span>${v.dimensions}</span></div>` : ''}
-      <div class="info-item"><label>상태</label><span>${v.status || '-'}</span></div>
+      ${v.horsepower ? `<div class="info-item"><label>마력수</label><span>${v.horsepower}hp</span></div>` : '<div class="info-item"></div>'}
+      ${v.transmission ? `<div class="info-item"><label>미션</label><span>${v.transmission}</span></div>` : '<div class="info-item"></div>'}
+      ${v.axle ? `<div class="info-item"><label>축위치</label><span>${v.axle}</span></div>` : '<div class="info-item"></div>'}
+      ${v.dimensions ? `<div class="info-item"><label>제원</label><span>${v.dimensions}</span></div>` : '<div class="info-item"></div>'}
     `;
     document.getElementById('modalDesc').textContent = v.description || '';
     const descEl = document.getElementById('modalDesc');
