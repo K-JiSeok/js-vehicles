@@ -34,6 +34,7 @@
       gap: 10px;
       flex-wrap: wrap;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      align-items: center;
     }
     .filter-bar select, .filter-bar input {
       padding: 8px 12px;
@@ -53,6 +54,13 @@
       font-weight: 600;
     }
     .filter-bar button:hover { background: #2a5a8c; }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-group span { font-size: 13px; color: #666; }
+    .filter-label { font-size: 13px; color: #888; font-weight: 600; }
     .count-bar { padding: 12px 20px; font-size: 14px; color: #666; }
     .grid {
       display: grid;
@@ -67,6 +75,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
     }
     .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
     .card-img {
@@ -81,7 +91,12 @@
       overflow: hidden;
     }
     .card-img img { width: 100%; height: 100%; object-fit: contain; background: #f0f0f0; }
-    .card-body { padding: 16px; }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
     .card-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .card-price { font-size: 20px; font-weight: 700; color: #e63946; margin-bottom: 10px; }
     .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -93,7 +108,7 @@
       font-size: 12px;
       font-weight: 600;
     }
-    .card-desc { font-size: 13px; color: #777; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { font-size: 13px; color: #777; margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 18px; }
     .card-contact {
       display: block;
       text-align: center;
@@ -104,6 +119,7 @@
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
+      margin-top: auto;
     }
     .card-contact:hover { background: #2a5a8c; }
     .sold-badge {
@@ -117,8 +133,6 @@
       font-size: 12px;
       font-weight: 700;
     }
-
-    /* 모달 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -137,8 +151,6 @@
       display: flex;
       flex-direction: row;
     }
-
-    /* 모달 사진 영역 */
     .modal-img-wrap {
       position: relative;
       width: 55%;
@@ -162,8 +174,6 @@
       opacity: 0;
     }
     .modal-img-slider img.active { opacity: 1; }
-
-    /* 화살표 버튼 */
     .arrow-btn {
       position: absolute;
       top: 50%;
@@ -185,8 +195,6 @@
     .arrow-btn:hover { background: rgba(0,0,0,0.8); }
     .arrow-left { left: 10px; }
     .arrow-right { right: 10px; }
-
-    /* 사진 인디케이터 */
     .img-indicator {
       position: absolute;
       bottom: 10px;
@@ -205,8 +213,6 @@
       transition: background 0.2s;
     }
     .dot.active { background: white; }
-
-    /* 사진 카운터 */
     .img-counter {
       position: absolute;
       top: 10px;
@@ -218,8 +224,6 @@
       font-size: 12px;
       z-index: 10;
     }
-
-    /* 닫기 버튼 */
     .modal-close {
       position: absolute;
       top: 10px;
@@ -237,8 +241,6 @@
       justify-content: center;
       z-index: 10;
     }
-
-    /* 모달 정보 영역 */
     .modal-body {
       padding: 28px;
       width: 45%;
@@ -271,10 +273,7 @@
       text-decoration: none;
     }
     .modal-contact:hover { background: #2a5a8c; }
-
     .loading { text-align: center; padding: 60px; color: #999; font-size: 16px; }
-
-    /* 모바일 반응형 */
     @media (max-width: 700px) {
       .modal { flex-direction: column; }
       .modal-img-wrap { width: 100%; min-width: 100%; }
@@ -303,15 +302,25 @@
     <option value="3.5">3.5톤</option>
     <option value="5">5톤</option>
     <option value="8">8톤</option>
+    <option value="8.5">8.5톤</option>
     <option value="11">11톤</option>
     <option value="15">15톤</option>
+    <option value="17">17톤</option>
+    <option value="18">18톤</option>
     <option value="25">25톤</option>
   </select>
-  <select id="filterYear">
-    <option value="">전체 연식</option>
-  </select>
-  <input type="number" id="filterMinPrice" placeholder="최소가격(만원)">
-  <input type="number" id="filterMaxPrice" placeholder="최대가격(만원)">
+  <div class="filter-group">
+    <span class="filter-label">연식</span>
+    <input type="number" id="filterMinYear" placeholder="시작년도" style="width:100px;">
+    <span>~</span>
+    <input type="number" id="filterMaxYear" placeholder="종료년도" style="width:100px;">
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">가격</span>
+    <input type="number" id="filterMinPrice" placeholder="최소(만원)" style="width:100px;">
+    <span>~</span>
+    <input type="number" id="filterMaxPrice" placeholder="최대(만원)" style="width:100px;">
+  </div>
   <select id="filterStatus">
     <option value="">전체</option>
     <option value="판매중">판매중</option>
@@ -327,11 +336,8 @@
   <div class="loading">매물을 불러오는 중...</div>
 </div>
 
-<!-- 모달 -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
-
-    <!-- 왼쪽: 사진 슬라이더 -->
     <div class="modal-img-wrap">
       <button class="modal-close" onclick="closeModalBtn()">✕</button>
       <div class="modal-img-slider" id="modalSlider"
@@ -344,8 +350,6 @@
       <div class="img-counter" id="imgCounter"></div>
       <div class="img-indicator" id="imgIndicator"></div>
     </div>
-
-    <!-- 오른쪽: 차량 정보 -->
     <div class="modal-body">
       <div class="modal-title" id="modalTitle"></div>
       <div class="modal-price" id="modalPrice"></div>
@@ -353,7 +357,6 @@
       <div class="modal-desc" id="modalDesc"></div>
       <a class="modal-contact" id="modalContact" href="#">📞 전화 문의하기</a>
     </div>
-
   </div>
 </div>
 
@@ -368,7 +371,7 @@
   let dragStartX = 0;
 
   async function fetchVehicles() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicles?select=*&order=created_at.desc`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/vehicles?select=*&order=sort_order.asc.nullslast,created_at.desc`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
     });
     return await res.json();
@@ -402,6 +405,11 @@
   function formatMileage(m) {
     if (!m) return '-';
     return m.toLocaleString() + 'km';
+  }
+
+  function getYearNum(yearStr) {
+    if (!yearStr) return null;
+    return parseInt(String(yearStr).substring(0, 4));
   }
 
   function renderCards(vehicles) {
@@ -441,7 +449,6 @@
     }).join('');
   }
 
-  // 슬라이더 관련
   function showImg(index) {
     currentImgIndex = index;
     const imgs = document.querySelectorAll('#modalSlider img');
@@ -461,7 +468,6 @@
     showImg((currentImgIndex + 1) % currentImgs.length);
   }
 
-  // 마우스 드래그
   function dragStart(e) {
     dragStartX = e.clientX;
     document.onmouseup = dragEnd;
@@ -475,7 +481,6 @@
     document.onmouseup = null;
   }
 
-  // 터치 스와이프
   function touchStart(e) {
     dragStartX = e.touches[0].clientX;
   }
@@ -493,7 +498,6 @@
     currentImgs = allImages[id] || [];
     currentImgIndex = 0;
 
-    // 슬라이더 이미지 렌더링
     const slider = document.getElementById('modalSlider');
     if (currentImgs.length > 0) {
       slider.innerHTML = currentImgs.map((url, i) => `
@@ -503,14 +507,11 @@
       slider.innerHTML = `<div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#aaa;position:absolute;">사진 없음</div>`;
     }
 
-    // 인디케이터 렌더링
     document.getElementById('imgIndicator').innerHTML = currentImgs.length > 1
       ? currentImgs.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}" onclick="showImg(${i})"></div>`).join('')
       : '';
 
     document.getElementById('imgCounter').textContent = currentImgs.length > 0 ? `1 / ${currentImgs.length}` : '';
-
-    // 화살표 버튼 표시 여부
     document.querySelector('.arrow-left').style.display = currentImgs.length > 1 ? 'flex' : 'none';
     document.querySelector('.arrow-right').style.display = currentImgs.length > 1 ? 'flex' : 'none';
 
@@ -526,7 +527,7 @@
       ${v.axle ? `<div class="info-item"><label>축위치</label><span>${v.axle}</span></div>` : '<div class="info-item"></div>'}
       ${v.dimensions ? `<div class="info-item"><label>제원</label><span>${v.dimensions}</span></div>` : '<div class="info-item"></div>'}
     `;
-    document.getElementById('modalDesc').textContent = v.description || '';
+
     const descEl = document.getElementById('modalDesc');
     if (v.description) {
       descEl.textContent = v.description;
@@ -535,6 +536,7 @@
       descEl.textContent = '';
       descEl.style.display = 'none';
     }
+
     document.getElementById('modalContact').href = `tel:${v.contact}`;
     document.getElementById('modalContact').textContent = `📞 ${v.contact} 전화 문의`;
     document.getElementById('modalOverlay').classList.add('active');
@@ -548,27 +550,19 @@
     document.getElementById('modalOverlay').classList.remove('active');
   }
 
-  function populateYearFilter(vehicles) {
-    const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort().reverse();
-    const sel = document.getElementById('filterYear');
-    years.forEach(y => {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      sel.appendChild(opt);
-    });
-  }
-
   function applyFilter() {
     const tonnage = document.getElementById('filterTonnage').value;
-    const year = document.getElementById('filterYear').value;
+    const minYear = Number(document.getElementById('filterMinYear').value);
+    const maxYear = Number(document.getElementById('filterMaxYear').value);
     const minPrice = Number(document.getElementById('filterMinPrice').value);
     const maxPrice = Number(document.getElementById('filterMaxPrice').value);
     const status = document.getElementById('filterStatus').value;
 
     let filtered = allVehicles.filter(v => {
       if (tonnage && Number(v.tonnage) !== Number(tonnage)) return false;
-      if (year && v.year !== year) return false;
+      const yearNum = getYearNum(v.year);
+      if (minYear && yearNum && yearNum < minYear) return false;
+      if (maxYear && yearNum && yearNum > maxYear) return false;
       if (minPrice && v.price < minPrice) return false;
       if (maxPrice && v.price > maxPrice) return false;
       if (status && v.status !== status) return false;
@@ -579,7 +573,8 @@
 
   function resetFilter() {
     document.getElementById('filterTonnage').value = '';
-    document.getElementById('filterYear').value = '';
+    document.getElementById('filterMinYear').value = '';
+    document.getElementById('filterMaxYear').value = '';
     document.getElementById('filterMinPrice').value = '';
     document.getElementById('filterMaxPrice').value = '';
     document.getElementById('filterStatus').value = '';
@@ -588,16 +583,12 @@
 
   async function init() {
     const vehicles = await fetchVehicles();
-
-    // 판매중 먼저, 판매완료 뒤로 정렬
     allVehicles = [
       ...vehicles.filter(v => v.status !== '판매완료'),
       ...vehicles.filter(v => v.status === '판매완료'),
     ];
-
     const ids = allVehicles.map(v => v.id);
     allImages = await fetchImages(ids);
-    populateYearFilter(allVehicles);
     renderCards(allVehicles);
   }
 
