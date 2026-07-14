@@ -545,8 +545,9 @@
       descEl.style.display = 'none';
     }
 
-    document.getElementById('modalContact').href = `tel:${v.contact}`;
-    document.getElementById('modalContact').textContent = `📞 ${v.contact} 전화 문의`;
+    const contact = v.contact || '010-5500-4614';
+    document.getElementById('modalContact').href = `tel:${contact}`;
+    document.getElementById('modalContact').textContent = `📞 ${contact} 전화 문의`;
     document.getElementById('modalOverlay').classList.add('active');
   }
 
