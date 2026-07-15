@@ -442,7 +442,7 @@
           </div>
           <div class="card-body">
             <div class="card-title">${v.model_name || '-'}</div>
-            <div class="card-price" style="${v.status === '판매완료' ? 'color:#888;font-size:16px;' : ''}">${formatPrice(v.price, v.status)}</div>
+            <div class="card-price">${formatPrice(v.price, v.status)}</div>
             <div class="card-tags">
               ${v.tonnage ? `<span class="tag">${v.tonnage}톤</span>` : ''}
               ${v.year ? `<span class="tag">${v.year}</span>` : ''}
@@ -526,7 +526,7 @@
 
     document.getElementById('modalTitle').textContent = v.model_name || '-';
     document.getElementById('modalPrice').textContent = formatPrice(v.price, v.status);
-    document.getElementById('modalPrice').style.color = v.status === '판매완료' ? '#888' : '#e63946';
+    document.getElementById('modalPrice').style.color = '#e63946';
     document.getElementById('modalInfo').innerHTML = `
       <div class="info-item"><label>차량번호</label><span>${v.plate_number || '-'}</span></div>
       <div class="info-item"><label>연식</label><span>${v.year || '-'}</span></div>
