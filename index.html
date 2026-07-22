@@ -525,18 +525,24 @@
     document.querySelector('.arrow-left').style.display = currentImgs.length > 1 ? 'flex' : 'none';
     document.querySelector('.arrow-right').style.display = currentImgs.length > 1 ? 'flex' : 'none';
 
-    document.getElementById('modalTitle').textContent = v.model_name || '-';
+    const displayTitle = v.manufacturer && v.model 
+      ? `${v.manufacturer} ${v.model}` 
+      : v.model_name || '-';
+    document.getElementById('modalTitle').textContent = displayTitle;
     document.getElementById('modalPrice').textContent = formatPrice(v.price, v.status);
     document.getElementById('modalPrice').style.color = '#e63946';
     document.getElementById('modalInfo').innerHTML = `
       <div class="info-item"><label>차량번호</label><span>${v.plate_number || '-'}</span></div>
       <div class="info-item"><label>연식</label><span>${v.year || '-'}</span></div>
+      ${v.body_type ? `<div class="info-item"><label>차체종류</label><span>${v.body_type}</span></div>` : '<div class="info-item"></div>'}
       ${v.tonnage ? `<div class="info-item"><label>톤수</label><span>${v.tonnage}톤</span></div>` : '<div class="info-item"></div>'}
       <div class="info-item"><label>주행거리</label><span>${formatMileage(v.mileage)}</span></div>
       ${v.horsepower ? `<div class="info-item"><label>마력수</label><span>${v.horsepower}hp</span></div>` : '<div class="info-item"></div>'}
       ${v.transmission ? `<div class="info-item"><label>미션</label><span>${v.transmission}</span></div>` : '<div class="info-item"></div>'}
       ${v.axle ? `<div class="info-item"><label>축위치</label><span>${v.axle}</span></div>` : '<div class="info-item"></div>'}
-      ${v.dimensions ? `<div class="info-item"><label>제원</label><span>${v.dimensions}</span></div>` : '<div class="info-item"></div>'}
+      ${v.dimensions ? `<div class="info-item"><label>제원(mm)</label><span>${v.dimensions}</span></div>` : '<div class="info-item"></div>'}
+      ${v.modification ? `<div class="info-item" style="grid-column:1/-1;"><label>구조변경</label><span>${v.modification}</span></div>` : ''}
+      ${v.accident ? `<div class="info-item"><label>사고유무</label><span>${v.accident}</span></div>` : '<div class="info-item"></div>'}
     `;
 
     const descEl = document.getElementById('modalDesc');
