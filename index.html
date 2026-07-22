@@ -444,6 +444,7 @@
             <div class="card-title">${v.model_name || '-'}</div>
             <div class="card-price">${formatPrice(v.price, v.status)}</div>
             <div class="card-tags">
+              ${v.body_type ? `<span class="tag">${v.body_type}</span>` : ''}
               ${v.tonnage ? `<span class="tag">${v.tonnage}톤</span>` : ''}
               ${v.year ? `<span class="tag">${v.year}</span>` : ''}
               ${v.transmission ? `<span class="tag">${v.transmission}</span>` : ''}
